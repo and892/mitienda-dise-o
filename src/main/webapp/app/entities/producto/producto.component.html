@@ -1,0 +1,218 @@
+<div>
+    <h2 id="page-heading">
+        <span jhiTranslate="mitiendaApp.producto.home.title">Productos</span>
+
+        <div *jhiHasAnyAuthority="'ROLE_ADMIN'">
+            <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-producto" [routerLink]="['/producto/new']">
+                <fa-icon [icon]="'plus'"></fa-icon>
+                <span  jhiTranslate="mitiendaApp.producto.home.createLabel">
+                Create a new Producto
+                </span>
+            </button>
+        </div>
+
+    </h2>
+    <jhi-alert-error></jhi-alert-error>
+    <jhi-alert></jhi-alert>
+    <br/>
+    <div class="alert alert-warning" *ngIf="productos?.length === 0">
+        <span jhiTranslate="mitiendaApp.producto.home.notFound">No productos found</span>
+    </div>
+
+
+
+    <div *ngIf="productos">
+
+
+        <div class="mb-2 d-flex justify-content-end align-items-center">
+
+            <span class="mr-2 col-2">Filter by name</span>
+            <input type="search" class="form-control" [(ngModel)]="filter">
+
+
+            <span class="mx-2 col-1">Sort by</span>
+            <div class="btn-group" role="group" jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="loadPage.bind(this)">
+
+              <button type="button" class="btn btn-light" jhiSortBy="nombre">
+                <span class="d-flex">
+                  <span jhiTranslate="mitiendaApp.producto.nombre">Name</span>&nbsp;
+                  <fa-icon [icon]="'sort'"></fa-icon>
+                </span>
+              </button>
+
+              <button type="button" class="btn btn-light" jhiSortBy="precioVenta">
+                <span class="d-flex">
+                  <span jhiTranslate="mitiendaApp.producto.precioVenta">Price</span>&nbsp;
+                  <fa-icon [icon]="'sort'"></fa-icon>
+                </span>
+              </button>
+
+              <button type="button" class="btn btn-light" jhiSortBy="estado">
+                <span class="d-flex">
+                  <span jhiTranslate="mitiendaApp.producto.estado">Estado</span>&nbsp;
+                  <fa-icon [icon]="'sort'"></fa-icon>
+                </span>
+              </button>
+
+              <button type="button" class="btn btn-light" jhiSortBy="talla">
+                <span class="d-flex">
+                  <span jhiTranslate="mitiendaApp.producto.talla">Talla</span>&nbsp;
+                  <fa-icon [icon]="'sort'"></fa-icon>
+                </span>
+              </button>
+
+            </div>
+        </div>
+
+
+        <div class="list-group">
+
+            <a class="list-group-item list-group-item-action flex-column align-items-start"
+            *ngFor="let producto of (productos | pureFilter:filter:'nombre'); trackBy: trackId">
+
+                <div class="row">
+
+
+                    <div class="col-2 col-xs-12 justify-content-center">
+                        <img [src]="'data:' + producto.imageContentType + ';base64,' + producto.image" style="max-height:150px;" alt="product image" />
+                        <!--<img src="https://www.dhresource.com/webp/m/0x0s/f2-albu-g6-M01-8B-C1-rBVaSFvVUuqACRamAADFf6BlJW0228.jpg/camiseta-de-mujer-redbella-estilo-coreano.jpg" alt="" style="max-height:150px;">-->
+                    </div>
+
+                    <div class="col col-xs-12">
+
+                        <div class="d-flex w-100 justify-content-between">
+
+                            <a [routerLink]="['/producto', producto.id, 'view']">
+                                <h5 class="mb-1">{{ producto.nombre }}</h5>
+                            </a>
+
+                            <small *ngIf="producto.productCategoriaId">
+                                <a [routerLink]="['/producto-categoria', producto.productCategoriaId?.id, 'view']"> {{ producto.productCategory?.id }}</a>
+                            </small>
+
+                        </div>
+
+                        <small>
+                            <small class="mb-1">{{ producto.descripcion }}</small>
+                            <p class="mb-1">Price: {{ producto.precioVenta | currency: 'USD'}}</p>
+                            <small>
+
+                                {{ producto.estado }}
+
+                            </small>
+                            <div>
+                                Size:
+                                <span>
+                                  {{ producto.talla }}
+                                </span>
+                            </div>
+
+                        </small>
+
+                        <div *jhiHasAnyAuthority="'ROLE_ADMIN'">
+
+                            <button type="submit" [routerLink]="['/producto', producto.id, 'edit']" class="btn btn-primary btn-sm">
+                                <fa-icon [icon]="'pencil-alt'"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                            </button>
+
+                            <button type="submit" (click)="delete(producto)" class="btn btn-danger btn-sm">
+                              <fa-icon [icon]="'times'"></fa-icon>
+                              <span class="d-none d-md-inline"
+                               jhiTranslate="entity.action.delete">Delete</span>
+                            </button>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+    </div>
+
+<!--
+      <div *ngIf="products">
+        <div class="list-group">
+          <a ...>
+            <div class="row">
+              ...
+              <div class="col col-xs-12">
+                <div class="d-flex w-100 justify-content-between">
+                 ...
+                  <small *ngIf="product.productCategory">
+                    <a [routerLink]="['/product-category',
+                        product.productCategory?.id, 'view']">
+                      Category: {{ product.productCategory?.id }}
+                    </a>
+                  </small>
+                </div>
+                <small class="mb-1">{{ product.description }}</small>
+                <p class="mb-1">{{ product.price | currency: 'USD' }}
+                </p>
+                <small>
+                  ...
+                </small>
+                <div *jhiHasAnyAuthority="'ROLE_ADMIN'">
+                  <button type="submit" [routerLink]="['/product',
+                   product.id,
+                    'edit']" class="btn btn-primary btn-sm">
+                    <fa-icon [icon]="'pencil-alt'"></fa-icon>
+                    <span class="d-none d-md-inline"
+                      jhiTranslate="entity.action.edit">Edit</span>
+                  </button>
+                  <button type="submit" (click)="delete(product)"
+                   class="btn btn-
+                    danger btn-sm">
+                    <fa-icon [icon]="'times'"></fa-icon>
+                    <span class="d-none d-md-inline"
+                     jhiTranslate="entity.action.delete">Delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+-->
+<!--
+    <div *ngIf="productos">
+        <div class="list-group">
+          <a class="list-group-item list-group-item-action flex-column
+           align-
+            items-start"
+            *ngFor="let producto of productos; trackBy: trackId">
+            <div class="d-flex w-100 justify-content-between">
+              <a [routerLink]="['/producto', producto.id, 'view']">
+                <h5 class="mb-1">{{ producto.nombre }}</h5>
+              </a>
+              <small *ngIf="producto.productCategoriaId">
+                <a [routerLink]="['/producto-categoria', producto
+                    .productCategoriaId?.id, 'view']">
+                  {{ producto.productCategory?.id }}
+                </a>
+              </small>
+            </div>
+            <small class="mb-1">{{ producto.descripcion }}</small>
+            <p class="mb-1">Price: {{ producto.precioVenta }}</p>
+            <small>
+                {{ producto.estado }}
+            </small>
+          </a>
+        </div>
+      </div>
+-->
+
+
+
+
+    <div *ngIf="productos?.length > 0">
+        <div class="row justify-content-center">
+            <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+        </div>
+        <div class="row justify-content-center">
+            <ngb-pagination [collectionSize]="totalItems" [(page)]="ngbPaginationPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage($event)"></ngb-pagination>
+        </div>
+    </div>
+</div>
